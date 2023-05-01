@@ -5,15 +5,14 @@ from arguments.data_arguments import DataTrainingArguments
 from arguments.training_arguments import MyTrainingArguments
 from processing.preprocessing import preprocess_train_features, preprocess_eval_features
 from processing.postprocessing import post_processing_function
-from trainer.compute import compute_metric
-from trainer.trainer_qa import QuestionAnsweringTrainer
+from reader.compute import compute_metric
+from reader.trainer_qa import QuestionAnsweringTrainer
 from transformers import (
     HfArgumentParser,
     AutoConfig,
     AutoTokenizer,
     AutoModelForQuestionAnswering,
     DataCollatorWithPadding,
-    Trainer
 )
 from datasets import DatasetDict, load_from_disk 
 from typing import NoReturn

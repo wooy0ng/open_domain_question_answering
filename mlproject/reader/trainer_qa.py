@@ -6,6 +6,7 @@ from arguments.data_arguments import DataTrainingArguments
 
 
 class QuestionAnsweringTrainer(Trainer):
+    ''' ODQA에서 Reader 역할을 하는 모델 '''
     def __init__(
         self,
         *args, 
