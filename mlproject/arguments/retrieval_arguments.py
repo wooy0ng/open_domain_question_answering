@@ -28,7 +28,7 @@ class RetrievalArguments:
         }
     )
     use_faiss: bool = field(
-        default=False,
+        default=True,
         metadata={
             'help': ""
         }

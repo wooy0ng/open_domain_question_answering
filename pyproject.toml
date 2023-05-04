@@ -13,6 +13,7 @@ datasets = "^2.11.0"
 torch = "^2.0.0"
 evaluate = "^0.4.0"
 scikit-learn = "^1.2.2"
+faiss-cpu = "^1.7.4"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.3.1"

@@ -35,12 +35,12 @@ if __name__ == '__main__':
     
     query = "대통령을 포함한 미국의 행정부 견제권을 갖는 국가 기관은?"
     
+    retriever.get_sparse_embedding()
     if retrieval_args.use_faiss:
-        # test single query
-        pass
-
+        retriever.get_faiss_indexer()
+        
     else:
-        retriever.get_sparse_embedding()
+        
         with timer("bulk query by exhaustive search"):
             df = retriever.retrieve(full_ds)
             df['correct'] = df['original_context'] == df['context']
