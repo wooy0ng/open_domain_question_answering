@@ -48,7 +48,7 @@ class SparseRetrieval:
         self.tfidf = TfidfVectorizer(
             tokenizer=tokenize_fn,
             ngram_range=(1, 2),
-            max_features=50000,
+            max_features=25000,
         )
 
         self.passage_embedding = None  # get_sparse_embedding() 함수가 생성됨
@@ -84,8 +84,7 @@ class SparseRetrieval:
                 pkl.dump(self.tfidf, f)
         return
 
-    
-    def get_faiss_indexer(self, num_clusters: int = 64) -> None:
+    def get_faiss_indexer(self, num_clusters: int = 32) -> None:
         """
         Args:
             num_clusters:
@@ -94,6 +93,9 @@ class SparseRetrieval:
         Description:
             미리 Passage Embedding된 값을
             FAISS indexer에 fitting시켜 놓는 작업을 수행.
+
+            passage embedding의 dimension이 25000, cluster 개수가 32일때
+            RAM 16GB의 컴퓨팅 리소스가 필요
         """
         indexer_name = f"faiss_clusters{num_clusters}.index"
         indexer_path = os.path.join(self.data_path, indexer_name)
@@ -117,6 +119,86 @@ class SparseRetrieval:
             print("save faiss indexer.")
 
         return
+
+    def retrieve_faiss(
+        self, query_or_dataset: Union[str, Dataset], top_k: Optional[int] = 1
+    ) -> Union[Tuple[List, List], pd.DataFrame]:
+        """
+        Args:
+            query_or_dataset:
+                string이나 Dataset으로 이루어진 Query를 받는다.
+                string으로 하나의 query만 받으면 `get_relevant_doc`을 통해 유사도를 구한다.
+                Dataset의 형태는 query를 포함한 Dataset을 받는다.
+                이 경우 `get_relevant_doc_bulk`를 통해 유사도를 구한다.
+            top_k:
+                상위 몇 개의 passage를 사용할 것인지 지정한다.
+
+        Returns:
+            1개의 query를 받는 경우 -> Tuple[List, List]
+            여러개의 query를 받는 경우 -> pd.DataFrame
+
+        Description:
+            self.retrieve() 메소드와 같은 동작을 하지만 faiss를 사용하여 유사도 계산을 수행한다.
+        """
+
+        assert self.indexer is not None, "get_faiss_indexer()를 먼저 수행해야한다."
+
+        if isinstance(query_or_dataset, str):
+            doc_scores, doc_indices = self.get_relevant_doc_faiss(
+                query_or_dataset, k=top_k
+            )
+
+            for idx in range(top_k):
+                print("Top-%d passage with score %.4f" % (idx + 1, doc_scores[idx]))
+                print(self.contexts[doc_indices[idx]])
+            return (
+                doc_scores,
+                [self.contexts[doc_indices[idx]] for idx in range(top_k)],
+            )
+
+        elif isinstance(query_or_dataset, Dataset):
+            queries = query_or_dataset["question"]
+            total = []
+            doc_scores, doc_indices = self.get_relevant_doc_bulk_faiss(queries, k=top_k)
+
+            for idx, example in enumerate(query_or_dataset):
+                tmp = {
+                    "question": example["question"],
+                    "id": example["id"],
+                    "context": " ".join(
+                        [self.contexts[pid] for pid in doc_indices[idx]]
+                    ),
+                }
+                if "context" in example.keys() and "answers" in example.keys():
+                    # validation 데이터를 사용하면 ground_truth context와 answer도 반환
+                    tmp["original_context"] = example["context"]
+                    tmp["answers"] = example["answers"]
+                total.append(tmp)
+            return pd.DataFrame(total)
+
+    def get_relevant_doc_bulk_faiss(self, queries: List, k: Optional[int] = 1):
+        query_vectors = self.tfidf.transform(queries)
+        assert np.sum(query_vectors), "query에 vectorizer의 vocab에 없는 단어만 존재할 경우 발생"
+
+        spinner.start(desc="queries faiss search")
+        query_embeddings = query_vectors.toarray().astype(np.float32)
+        dimensions, indices = self.indexer.search(query_embeddings, k)
+        spinner.stop()
+
+        return dimensions.tolist(), indices.tolist()
+
+    def get_relevant_doc_faiss(
+        self, query: str, k: Optional[int] = 1
+    ) -> Tuple[List, List]:
+        query_vector = self.tfidf.transform([query])
+        assert np.sum(query_vector) != 0, "query에 vectorizer의 vocab에 없는 단어만 존재할 경우 발생"
+
+        query_embedding = query_vector.toarray().astype(np.float32)
+        spinner.start(desc="query faiss search")
+        dimension, index = self.indexer.search(query_embedding, k)
+        spinner.stop()
+
+        return dimension.tolist()[0], index.tolist()[0]
 
     def retrieve(
         self,
