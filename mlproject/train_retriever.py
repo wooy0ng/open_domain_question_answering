@@ -30,17 +30,23 @@ if __name__ == "__main__":
         retrieval_args.model_name_or_path,
         use_fast=False,
     )
+    
+    print("using embed : ", 'bm25' if retrieval_args.use_bm25 else 'tfidf')
+    
     retriever = SparseRetrieval(
         tokenize_fn=tokenizer.tokenize,
         data_path=retrieval_args.data_path,
         context_path=retrieval_args.context_path,
+        use_bm25=retrieval_args.use_bm25
     )
 
     query = "대통령을 포함한 미국의 행정부 견제권을 갖는 국가 기관은?"
-
     retriever.get_sparse_embedding()
     if retrieval_args.use_faiss:
         retriever.get_faiss_indexer()
+        
+        with timer("single query by faiss exhausive search"):
+            scores, indices = retriever.retrieve_faiss(query)
 
         with timer("bulk query by faiss exhausive search"):
             df = retriever.retrieve_faiss(full_ds)
@@ -50,11 +56,10 @@ if __name__ == "__main__":
                 "correct retrieval result by faiss exhausive search",
                 df["correct"].sum() / len(df),
             )
-
-        with timer("single query by faiss exhausive search"):
-            scores, indices = retriever.retrieve_faiss(query)
-
     else:
+        with timer("single query by exhausive search"):
+            scores, context = retriever.retrieve(query)
+            
         with timer("bulk query by exhaustive search"):
             df = retriever.retrieve(full_ds)
             df["correct"] = df["original_context"] == df["context"]
@@ -64,7 +69,3 @@ if __name__ == "__main__":
                 df["correct"].sum() / len(df),
             )
 
-        with timer("single query by exhausive search"):
-            scores, context = retriever.retrieve(query)
-
-    pass
