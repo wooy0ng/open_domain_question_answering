@@ -1565,6 +1565,17 @@ testing = ["build[virtualenv]", "filelock (>=3.4.0)", "flake8 (<5)", "flake8-202
 testing-integration = ["build[virtualenv]", "filelock (>=3.4.0)", "jaraco.envs (>=2.2)", "jaraco.path (>=3.2.0)", "pytest", "pytest-enabler", "pytest-xdist", "tomli", "virtualenv (>=13.0.0)", "wheel"]
 
 [[package]]
+name = "simple-spinner"
+version = "0.1.3"
+description = "Simple Spinner in python"
+category = "main"
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "simple_spinner-0.1.3-py3-none-any.whl", hash = "sha256:c558b319e8e636d15ab0b0b8014a6524a29c2ae87e59863858ef9417c9270f82"},
+]
+
+[[package]]
 name = "six"
 version = "1.16.0"
 description = "Python 2 and 3 compatibility utilities"
@@ -2095,4 +2106,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "1056d5cc6323480a440deb3acfc3c578aaf5a7f13219c211702b2bca1b832237"
+content-hash = "86344be2434b1eae3597c0df8f7a5f29c4f3d25a1cb5836b2ff7de439a315193"

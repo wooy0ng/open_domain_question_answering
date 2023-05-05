@@ -9,50 +9,6 @@ from typing import Tuple, Any
 from contextlib import contextmanager
 
 
-class Spinner():
-    def __init__(self, delay=None):
-        import warnings
-        import time
-        warnings.filterwarnings(action='ignore', category=UserWarning)
-        
-        self.spinner_generator = self.spinning_cursor()
-        
-        self.desc = ""
-        self.busy = False
-        self.delay = 0.5
-        self.start_time = 0
-                
-        if delay and float(delay): 
-            self.delay = delay
-
-    @staticmethod
-    def spinning_cursor():
-        while 1: 
-            for cursor in '|/-\\': 
-                yield cursor
-
-    def spinner_task(self):
-        print(f"[+] {self.desc}...", end=' ')
-        while self.busy:
-            sys.stdout.write(next(self.spinner_generator))
-            sys.stdout.flush()
-            time.sleep(self.delay)
-            sys.stdout.write('\b')
-            sys.stdout.flush()
-
-    def start(self, desc: str="spinner"):
-        self.busy = True
-        self.desc = desc
-        self.start_time = time.time()
-        threading.Thread(target=self.spinner_task).start()
-
-    def stop(self):
-        self.busy = False
-        time.sleep(self.delay)
-        
-        print(f"end time : {time.time()-self.start_time}'s")
-
-
 @contextmanager
 def timer(name):
     t = time.time()
