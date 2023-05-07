@@ -31,12 +31,16 @@ if __name__ == "__main__":
         use_fast=False,
     )
     
-    print("using embed : ", 'bm25' if retrieval_args.use_bm25 else 'tfidf')
+    if retrieval_args.use_elastic:
+        print("using elastic search")
+    else:
+        print("using embed : ", 'bm25' if retrieval_args.use_bm25 else 'tfidf')
     
     retriever = SparseRetrieval(
         tokenize_fn=tokenizer.tokenize,
         data_path=retrieval_args.data_path,
         context_path=retrieval_args.context_path,
+        use_elastic=retrieval_args.use_elastic,
         use_bm25=retrieval_args.use_bm25
     )
 
@@ -56,6 +60,20 @@ if __name__ == "__main__":
                 "correct retrieval result by faiss exhausive search",
                 df["correct"].sum() / len(df),
             )
+            
+    elif retrieval_args.use_elastic:
+        with timer("single query by faiss exhausive search"):
+            scores, indices = retriever.retrieve_elastic(query)   
+            
+        with timer("bulk query by elastic exhausive search"):
+            df = retriever.retrieve_elastic(full_ds)
+            df["correct"] = df["original_context"] == df["context"]
+
+            print(
+                "correct retrieval result by elastic exhausive search",
+                df["correct"].sum() / len(df),
+            )
+            
     else:
         with timer("single query by exhausive search"):
             scores, context = retriever.retrieve(query)

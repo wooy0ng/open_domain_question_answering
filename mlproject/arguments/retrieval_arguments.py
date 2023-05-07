@@ -27,6 +27,12 @@ class RetrievalArguments:
             'help': "사용할 말뭉치의 위치를 입력하세요."
         }
     )
+    use_elastic: bool = field(
+        default=True,
+        metadata={
+            'help': "elastic search를 사용할 경우 `True`로 지정하세요."
+        }
+    )
     use_bm25: bool = field(
         default=True,
         metadata={
