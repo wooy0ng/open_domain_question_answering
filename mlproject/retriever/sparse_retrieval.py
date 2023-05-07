@@ -378,7 +378,9 @@ class SparseRetrieval:
 
     def get_relevant_doc_elastic(self, query: str, k: Optional[int] = 1):
         # index search
-        query = {"query": {"bool": {"must": [{"match": {"context": query}}]}}}
+        query = {
+            "query": {"match": {"context": query}}     
+        }
 
         result = self.es.search(index="sparse_embedding", body=query, size=k)
         result = result["hits"]["hits"]
@@ -467,7 +469,9 @@ class SparseRetrieval:
         doc_scores, doc_indices = [], []
 
         for idx, query in enumerate(tqdm(queries, total=len(queries))):
-            query = {"query": {"bool": {"must": [{"match": {"context": query}}]}}}
+            query = {
+                "query": {"match": {"context": query}}     
+            }
             result = self.es.search(index="sparse_embedding", body=query, size=k)
             result = result["hits"]["hits"]
 
