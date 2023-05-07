@@ -33,7 +33,7 @@
 
 - 추론 파이프라인
 
-<img width="650" alt="model" src="https://user-images.githubusercontent.com/37149278/236675776-f47fe60e-bd6e-4f29-b7c3-a5bcd7ccfb43.png">
+<img width="700" alt="model" src="https://user-images.githubusercontent.com/37149278/236675776-f47fe60e-bd6e-4f29-b7c3-a5bcd7ccfb43.png">
 
 
 
