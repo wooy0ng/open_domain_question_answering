@@ -50,6 +50,6 @@
 
 <br><br>
 
-자세한 정보 및 인사이트는 <a href="https://blog.naver.com/wooy0ng/222947224206">블로그</a>를 참고해주세요! 
+자세한 정보 및 인사이트는 <a href="https://blog.naver.com/wooy0ng/223008607524">블로그</a>를 참고해주세요! 
 
 <a href="https://hits.seeyoufarm.com"><img src="https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2Fwooy0ng%2Fhit-counter&count_bg=%23ADC83D&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=hits&edge_flat=false"/></a>
